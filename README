@@ -24,6 +24,7 @@ PasswordThief_Worm
 	-find path to p1-rGalvan.tar
 	-type, "sudo python passwordThief_Worm.py" without the ""
 	-Password prompt: Enter cpsc
+NO EXTRA CREDIT
 
 Note:
 -	It may take a couple of seconds for the infected.txt file to show up on the other system. FileName.py shows up before the infected.txt file.

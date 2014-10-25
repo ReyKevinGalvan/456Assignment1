@@ -1,0 +1,31 @@
+Team Members
+Ricado Lucero		rickylro@csu.fullerton.edu
+Reynaldo Galvan		dokii10@csu.fullerton.edu
+
+Node number: node30 necIbWush](original pw)
+
+How To Execute:
+Must use Ubun2 as initial attacker.
+Replicator worm
+	-Open 2 other Ubuntu VMs
+	-Open Terminal in Ubun2
+	-find path to p1-rGalvan.tar
+	-type, "python replicator_worm.py" without the ""
+
+Extorter Worm
+	-Open 2 other Ubuntu VMs
+	-Open Terminal in Ubun2
+	-find path to p1-rGalvan.tar
+	-type, "python extorter_worm.py" without the "" 
+
+PasswordThief_Worm
+	-Open 2 other Ubuntu VMs
+	-Open Terminal in Ubun2
+	-find path to p1-rGalvan.tar
+	-type, "sudo python passwordThief_Worm.py" without the ""
+	-Password prompt: Enter cpsc
+
+Note:
+-	It may take a couple of seconds for the infected.txt file to show up on the other system. FileName.py shows up before the infected.txt file.
+-	For PasswordThief_worm, you will need to use sudo python passwordThief_Worm.py
+	with the password obviously being cpsc
